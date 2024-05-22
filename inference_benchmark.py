@@ -199,12 +199,14 @@ class BenchmarkTestDataset(data.Dataset):
     def __init__(
         self,
         dataroot_path: str,
+        test_pair_file: str,
         phase: Literal["train", "test"],
         order: Literal["paired", "unpaired"] = "paired",
         size: Tuple[int, int] = (512, 384),
     ):
         super(BenchmarkTestDataset, self).__init__()
         self.dataroot = dataroot_path
+        self.test_pair_file = test_pair_file
         self.phase = phase
         self.height = size[0]
         self.width = size[1]
@@ -217,7 +219,7 @@ class BenchmarkTestDataset(data.Dataset):
         )
         self.toTensor = transforms.ToTensor()
 
-        with open(os.path.join(dataroot_path, phase + "_tagged_shein.json"), "r") as file1:
+        with open(os.path.join(dataroot_path, "shein_tag_final.json"), "r") as file1:
             data1 = json.load(file1)
 
         annotation_list = [
@@ -252,7 +254,7 @@ class BenchmarkTestDataset(data.Dataset):
             filename = os.path.join(dataroot_path, f"{phase}_pairs.txt")
         else:
             #filename = os.path.join(dataroot_path, f"{phase}_unpairs_shein.txt")
-            filename = os.path.join(dataroot_path, "debug_unpairs.txt")
+            filename = os.path.join(dataroot_path, test_pair_file)
 
 
         with open(filename, "r") as f:
@@ -423,6 +425,7 @@ def main():
 
     test_dataset = BenchmarkTestDataset(
         dataroot_path=args.data_dir,
+        test_pair_file=args.test_pair_file,
         phase="test",
         order="unpaired" if args.unpaired else "paired",
         size=(args.height, args.width),
