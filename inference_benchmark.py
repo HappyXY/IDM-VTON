@@ -61,6 +61,7 @@ def parse_args():
     parser.add_argument("--guidance_scale",type=float,default=2.0,)
     parser.add_argument("--mixed_precision",type=str,default=None,choices=["no", "fp16", "bf16"],)
     parser.add_argument("--enable_xformers_memory_efficient_attention", action="store_true", help="Whether or not to use xformers.")
+    parser.add_argument('--pair_txt_path', type=str, default="", required=True)
     args = parser.parse_args()
 
 
@@ -254,7 +255,7 @@ class BenchmarkTestDataset(data.Dataset):
             filename = os.path.join(dataroot_path, f"{phase}_pairs.txt")
         else:
             #filename = os.path.join(dataroot_path, f"{phase}_unpairs_shein.txt")
-            filename = os.path.join(dataroot_path, test_pair_file)
+            filename = test_pair_file
 
 
         with open(filename, "r") as f:
@@ -284,7 +285,7 @@ class BenchmarkTestDataset(data.Dataset):
             cloth_annotation = self.annotation_pair[c_name] 
         else:
             cloth_annotation = "shirts"
-        cloth = Image.open(os.path.join(self.dataroot, "cloth_crop_resize", c_name))
+        cloth = Image.open(os.path.join(self.dataroot, "cloth", c_name))
 
         im_pil_big = Image.open(
             os.path.join(self.dataroot, "image", im_name)
@@ -425,7 +426,7 @@ def main():
 
     test_dataset = BenchmarkTestDataset(
         dataroot_path=args.data_dir,
-        test_pair_file=args.test_pair_file,
+        test_pair_file=args.pair_txt_path,
         phase="test",
         order="unpaired" if args.unpaired else "paired",
         size=(args.height, args.width),
